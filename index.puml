@@ -1,0 +1,84 @@
+@startuml
+
+/'
+  コメント
+'/
+!define MAIN_ENTITY #E2EFDA-C6E0B4
+!define MAIN_ENTITY_2 #FCE4D6-F8CBAD
+
+!define METAL #f2f2f2-d9d9d9
+!define MASTER_MARK_COLOR aaffaa
+!define TRANSACTION_MARK_COLOR #ffaa00
+
+skinparam class {
+  BackgroundColor METAL
+  BorderColor Black
+  ArrowColor Black
+}
+
+package "外部データベース" as ext <<Database>> {
+  entity "顧客マスタ" as customer <<M,MASTER_MARK_COLOR>> {
+    + 顧客ID [PK]
+    --
+    顧客名
+    郵便番号
+    住所
+    電話番号
+    FAX
+  }
+}
+
+package "開発対象システム" as target_system {
+  entity "注文テーブル" as order <<T,TRANSACTION_MARK_COLOR>> MAIN_ENTITY {
+    + 注文ID [PK]
+    --
+    # 顧客ID [FK]
+    注文日時
+    配送希望日
+    ...
+  }
+
+  entity "注文明細テーブル" as order_detail <<T,TRANSACTION_MARK_COLOR>> MAIN_ENTITY_2 {
+    + 注文ID [PK]
+    + 明細番号 [PK]
+    --
+    # SKU [FK]
+    注文数
+    税抜価格
+    税込価格
+  }
+
+  entity "SKUマスタ" as sku <<M,MASTER_MARK_COLOR>> {
+    + SKU [PK]
+    --
+    # 商品ID [FK]
+    カラー
+    サイズ
+    ...
+  }
+
+  entity "商品マスタ" as product <<M,MASTER_MARK_COLOR>> {
+    + 商品ID [PK]
+    --
+    商品名
+    原産国
+    # 仕入先ID [FK]
+  }
+
+  entity "仕入先マスタ" as vendor <<M,MASTER_MARK_COLOR>> {
+    + 仕入先IF [PK]
+    --
+    仕入先名
+    ...
+  }
+}
+
+customer |o-up-o{ order
+order ||-ri-|{ order_detail
+order_detail }-do-|| sku
+sku }-le-|| product
+product }o-le-|| vendor
+
+note bottom of customer: 吹き出しコメントテスト
+
+@enduml
